@@ -1,6 +1,7 @@
 import {Component} from 'react'
-import logo from './logo.svg';
+import CardList from './Components/card-list/CardList';
 import './App.css';
+import SearchBox from './Components/search-box/SearchBox';
 
 class App extends Component {
 
@@ -8,29 +9,46 @@ class App extends Component {
     super()
 
     this.state = {
-      name:'Tanveer',
+      monsters : [],
+      searchField : ''
     }
   }
 
+  componentDidMount() {
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((response) => response.json())
+      .then((users) => this.setState(()=>{
+        return {monsters:users}
+      }))
+  }
+
+  onSeachChange = (e)=> {
+    const searchField = e.target.value.toLowerCase()
+    this.setState(()=>{
+      return {searchField}
+  })
+  
+}
+
   render(){
+
+    const {monsters, searchField} = this.state;
+    const {onSeachChange} = this;
+
+    const filtered = monsters.filter((monster) => {
+      return monster.name.toLowerCase().includes(searchField)
+      })
+
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Hello {this.state.name}
-          </p>
-          <button onClick={ () => {
-            this.setState( ()=>{
-              return {name:'Samejo'}
-            },
-             ()=>{
-              console.log(this.state);
-             })  
-          }}
-          >
-          Change Name</button>
-        </header>
+      
+        <SearchBox 
+          changeHandler={onSeachChange}
+          className="search-box"
+          placeholder= "Search Monsters"
+         />
+
+        <CardList monsters={filtered} />
       </div>
     );
   }
